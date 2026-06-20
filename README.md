@@ -64,7 +64,7 @@ The JWT filter authenticates the request and sets the security context. The tena
 ### Prerequisites
 
 - Java 17+
-- Node.js 18+
+- Node.js 20+
 - Docker & Docker Compose
 
 ### Running the Full Stack
