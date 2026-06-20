@@ -1,25 +1,26 @@
-package com.taskforge.task;
+package com.taskforge.audit;
 
 import com.taskforge.tenant.Tenant;
 import com.taskforge.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "task_comments")
+@Table(name = "audit_logs")
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class TaskComment {
+public class AuditLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,15 +31,25 @@ public class TaskComment {
     private Tenant tenant;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id", nullable = false)
-    private Task task;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @Column(nullable = false, length = 50)
+    private String action;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "entity_type", nullable = false, length = 50)
+    private String entityType;
+
+    @Column(name = "entity_id", nullable = false)
+    private UUID entityId;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "old_value", columnDefinition = "jsonb")
+    private Map<String, Object> oldValue;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "new_value", columnDefinition = "jsonb")
+    private Map<String, Object> newValue;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

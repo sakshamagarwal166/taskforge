@@ -28,3 +28,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+app:
+  jwt:
+    secret: dGFza2ZvcmdlLWp3dC1zZWNyZXQta2V5LXRoYXQtaXMtbG9uZy1lbm91Z2gtZm9yLWhtYWMtc2hhMjU2
+    access-token-expiration: 3600000
+    refresh-token-expiration: 604800000

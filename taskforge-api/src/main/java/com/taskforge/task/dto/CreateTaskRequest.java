@@ -2,7 +2,6 @@ package com.taskforge.task.dto;
 
 import com.taskforge.task.Priority;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -19,9 +18,6 @@ public record CreateTaskRequest(
         Priority priority,
 
         UUID assigneeId,
-
-        @NotNull(message = "Reporter ID is required")
-        UUID reporterId,
 
         LocalDate dueDate
 ) {

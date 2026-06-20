@@ -10,12 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
-@RequestMapping("/api/tenants/{tenantId}/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "User management APIs")
 public class UserController {
@@ -23,19 +22,15 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @Operation(summary = "Create a new user in a tenant")
-    public ResponseEntity<UserResponse> createUser(
-            @PathVariable UUID tenantId,
-            @Valid @RequestBody CreateUserRequest request) {
-        UserResponse response = userService.createUser(tenantId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Invite a new user to the tenant")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
     @GetMapping
-    @Operation(summary = "List users in a tenant (paginated)")
-    public ResponseEntity<Page<UserResponse>> getUsers(
-            @PathVariable UUID tenantId,
-            Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsersByTenant(tenantId, pageable));
+    @Operation(summary = "List users in the current tenant")
+    public ResponseEntity<Page<UserResponse>> getUsers(Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(pageable));
     }
 }

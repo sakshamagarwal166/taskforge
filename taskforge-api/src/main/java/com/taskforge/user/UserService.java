@@ -2,6 +2,7 @@ package com.taskforge.user;
 
 import com.taskforge.common.exception.DuplicateResourceException;
 import com.taskforge.common.exception.ResourceNotFoundException;
+import com.taskforge.multitenancy.TenantContext;
 import com.taskforge.tenant.Tenant;
 import com.taskforge.tenant.TenantRepository;
 import com.taskforge.user.dto.CreateUserRequest;
@@ -24,7 +25,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse createUser(UUID tenantId, CreateUserRequest request) {
+    public UserResponse createUser(CreateUserRequest request) {
+        UUID tenantId = TenantContext.requireCurrentTenant();
         Tenant tenant = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tenant not found: " + tenantId));
 
@@ -41,15 +43,11 @@ public class UserService {
         user.setLastName(request.lastName());
         user.setRole(request.role() != null ? request.role() : Role.MEMBER);
 
-        User saved = userRepository.save(user);
-        return UserResponse.from(saved);
+        return UserResponse.from(userRepository.save(user));
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> getUsersByTenant(UUID tenantId, Pageable pageable) {
-        if (!tenantRepository.existsById(tenantId)) {
-            throw new ResourceNotFoundException("Tenant not found: " + tenantId);
-        }
-        return userRepository.findAllByTenantId(tenantId, pageable).map(UserResponse::from);
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserResponse::from);
     }
 }

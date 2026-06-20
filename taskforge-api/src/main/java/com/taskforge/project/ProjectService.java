@@ -1,8 +1,11 @@
 package com.taskforge.project;
 
+import com.taskforge.audit.Auditable;
+import com.taskforge.auth.SecurityUtils;
 import com.taskforge.common.exception.ResourceNotFoundException;
-import com.taskforge.project.dto.ProjectResponse;
+import com.taskforge.multitenancy.TenantContext;
 import com.taskforge.project.dto.CreateProjectRequest;
+import com.taskforge.project.dto.ProjectResponse;
 import com.taskforge.tenant.Tenant;
 import com.taskforge.tenant.TenantRepository;
 import com.taskforge.user.User;
@@ -24,12 +27,15 @@ public class ProjectService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ProjectResponse createProject(UUID tenantId, CreateProjectRequest request) {
+    @Auditable(action = "CREATE", entity = "Project")
+    public ProjectResponse createProject(CreateProjectRequest request) {
+        UUID tenantId = TenantContext.requireCurrentTenant();
         Tenant tenant = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tenant not found: " + tenantId));
 
-        User owner = userRepository.findById(request.ownerId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + request.ownerId()));
+        UUID ownerId = SecurityUtils.getCurrentUser().id();
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + ownerId));
 
         String projectKey = generateUniqueKey(tenantId, request.name());
 
@@ -42,23 +48,20 @@ public class ProjectService {
 
         addDefaultColumns(project);
 
-        Project saved = projectRepository.save(project);
-        return ProjectResponse.from(saved);
+        return ProjectResponse.from(projectRepository.save(project));
     }
 
     @Transactional(readOnly = true)
-    public Page<ProjectResponse> getProjectsByTenant(UUID tenantId, Pageable pageable) {
-        if (!tenantRepository.existsById(tenantId)) {
-            throw new ResourceNotFoundException("Tenant not found: " + tenantId);
-        }
-        return projectRepository.findAllByTenantId(tenantId, pageable).map(ProjectResponse::from);
+    public Page<ProjectResponse> getProjects(Pageable pageable) {
+        return projectRepository.findAll(pageable).map(ProjectResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public ProjectResponse getProjectById(UUID tenantId, UUID projectId) {
+    public ProjectResponse getProjectById(UUID projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
 
+        UUID tenantId = TenantContext.requireCurrentTenant();
         if (!project.getTenant().getId().equals(tenantId)) {
             throw new ResourceNotFoundException("Project not found: " + projectId);
         }
