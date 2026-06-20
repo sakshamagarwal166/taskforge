@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -18,6 +23,27 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+  taskforge-api:
+    build: ./taskforge-api
+    container_name: taskforge-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskforge
+      SPRING_DATASOURCE_USERNAME: taskforge
+      SPRING_DATASOURCE_PASSWORD: taskforge123
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  taskforge-ui:
+    build: ./taskforge-ui
+    container_name: taskforge-ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - taskforge-api
 
 volumes:
   postgres_data:

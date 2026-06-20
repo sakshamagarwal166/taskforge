@@ -4,14 +4,15 @@ Multi-tenant project management platform built with Spring Boot 3, React, and Po
 
 ## Tech Stack
 
-| Layer         | Technology                                      |
+| Layer         | Technology                                       |
 |---------------|--------------------------------------------------|
-| Language      | Java 17                                          |
-| Framework     | Spring Boot 3.5, Spring Security 6 (JWT)         |
+| Language      | Java 17, TypeScript                              |
+| Backend       | Spring Boot 3.5, Spring Security 6 (JWT)         |
+| Frontend      | React 18, Vite, TailwindCSS                      |
 | Persistence   | Spring Data JPA, Hibernate (multi-tenant filters) |
 | Database      | PostgreSQL 16                                    |
 | Migrations    | Flyway                                           |
-| Infrastructure| Docker, Redis                                    |
+| Infrastructure| Docker, Redis, GitHub Actions                    |
 
 ## Key Features
 
@@ -19,9 +20,13 @@ Multi-tenant project management platform built with Spring Boot 3, React, and Po
 - **JWT Authentication** — Stateless auth with access and refresh tokens. Login is scoped per tenant since emails are unique within a tenant, not globally.
 - **Role-Based Access Control** — Four roles (OWNER, ADMIN, MEMBER, VIEWER) enforced at the API layer via Spring Security's `@PreAuthorize`.
 - **Project Management** — Projects with auto-generated keys (e.g., "Bug Tracker" becomes `BT`), unique per tenant.
-- **Kanban Boards** — Each project gets default columns (To Do, In Progress, Done). Tasks track column position for drag-and-drop reordering.
+- **Kanban Boards** — Drag-and-drop task management with columns (To Do, In Progress, Done). Built with React and @hello-pangea/dnd.
 - **Audit Logging** — Every create, update, and move operation is logged with before/after JSON snapshots, the acting user, and a timestamp.
 - **API Documentation** — Interactive Swagger UI with all endpoints documented via OpenAPI 3.
+
+## Screenshots
+
+Screenshots coming soon.
 
 ## Architecture
 
@@ -59,28 +64,43 @@ The JWT filter authenticates the request and sets the security context. The tena
 ### Prerequisites
 
 - Java 17+
+- Node.js 18+
 - Docker & Docker Compose
 
-### Quick Start
+### Running the Full Stack
 
 ```bash
-# Start PostgreSQL and Redis
-docker compose up -d
+# 1. Start PostgreSQL and Redis
+docker compose up -d postgres redis
 
-# Run the application
+# 2. Start the backend (runs on port 8080)
 cd taskforge-api
 ./mvnw spring-boot:run
+
+# 3. Start the frontend (runs on port 5173)
+cd taskforge-ui
+npm install
+npm run dev
+
+# 4. Open the app
+open http://localhost:5173
 ```
 
-The API starts on `http://localhost:8080`.
+### Running with Docker (all services)
+
+```bash
+docker compose up --build
+```
+
+This starts PostgreSQL, Redis, the API, and the frontend. Open `http://localhost:3000`.
 
 API docs are available at [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
 
 ### First Steps
 
-1. **Register** a new tenant and owner account via `POST /api/auth/register`
-2. **Login** to get an access token via `POST /api/auth/login`
-3. Use the token as `Authorization: Bearer <token>` on all subsequent requests
+1. **Register** a new tenant and owner account via the UI or `POST /api/auth/register`
+2. **Login** to get access — the UI stores tokens automatically
+3. **Create a project** from the Projects page, then manage tasks on the kanban board
 
 ## API Endpoints
 
@@ -108,6 +128,6 @@ API docs are available at [http://localhost:8080/swagger-ui.html](http://localho
 - [x] JWT authentication
 - [x] Role-based access control
 - [x] Audit logging with JSON snapshots
-- [ ] React frontend with kanban board
-- [ ] GitHub Actions CI/CD
-- [ ] Dockerized full-stack deployment
+- [x] React frontend with kanban board
+- [x] GitHub Actions CI/CD
+- [x] Dockerized full-stack deployment

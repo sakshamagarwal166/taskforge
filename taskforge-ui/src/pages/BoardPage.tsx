@@ -40,7 +40,7 @@ export default function BoardPage() {
   }, [projectId]);
 
   useEffect(() => {
-    loadData();
+    loadData(); // eslint-disable-line react-hooks/set-state-in-effect
   }, [loadData]);
 
   function getTasksForColumn(columnId: string): Task[] {
