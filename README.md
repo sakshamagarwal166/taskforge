@@ -1,2 +1,2 @@
 # taskforge
-Multi-tenant project management platform — Spring Boot 3 + Angular 17 + PostgreSQL
+Multi-tenant project management platform — Spring Boot 3 + React 18 + PostgreSQL
