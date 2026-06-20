@@ -1,0 +1,11 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE tenants (
+    id         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name       VARCHAR(100) NOT NULL,
+    slug       VARCHAR(50)  NOT NULL UNIQUE,
+    plan       VARCHAR(20)  NOT NULL DEFAULT 'FREE',
+    is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
