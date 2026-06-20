@@ -1,7 +1,11 @@
 package com.taskforge.task;
 
+import com.taskforge.audit.AuditContext;
+import com.taskforge.audit.Auditable;
+import com.taskforge.auth.SecurityUtils;
 import com.taskforge.common.exception.BadRequestException;
 import com.taskforge.common.exception.ResourceNotFoundException;
+import com.taskforge.multitenancy.TenantContext;
 import com.taskforge.project.BoardColumn;
 import com.taskforge.project.BoardColumnRepository;
 import com.taskforge.project.Project;
@@ -29,9 +33,10 @@ public class TaskService {
     private final UserRepository userRepository;
 
     @Transactional
-    public TaskResponse createTask(UUID tenantId, UUID projectId, CreateTaskRequest request) {
-        Project project = findProjectInTenant(tenantId, projectId);
-        User reporter = findUser(request.reporterId());
+    @Auditable(action = "CREATE", entity = "Task")
+    public TaskResponse createTask(UUID projectId, CreateTaskRequest request) {
+        Project project = findProject(projectId);
+        User reporter = findUser(SecurityUtils.getCurrentUser().id());
         User assignee = request.assigneeId() != null ? findUser(request.assigneeId()) : null;
         BoardColumn firstColumn = getFirstColumn(project);
 
@@ -52,8 +57,10 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponse updateTask(UUID tenantId, UUID projectId, UUID taskId, UpdateTaskRequest request) {
-        Task task = findTaskInProject(tenantId, projectId, taskId);
+    @Auditable(action = "UPDATE", entity = "Task")
+    public TaskResponse updateTask(UUID projectId, UUID taskId, UpdateTaskRequest request) {
+        Task task = findTaskInProject(projectId, taskId);
+        AuditContext.setOldValue(TaskResponse.from(task));
 
         if (request.title() != null) task.setTitle(request.title());
         if (request.description() != null) task.setDescription(request.description());
@@ -65,8 +72,10 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponse moveTask(UUID tenantId, UUID projectId, UUID taskId, MoveTaskRequest request) {
-        Task task = findTaskInProject(tenantId, projectId, taskId);
+    @Auditable(action = "MOVE", entity = "Task")
+    public TaskResponse moveTask(UUID projectId, UUID taskId, MoveTaskRequest request) {
+        Task task = findTaskInProject(projectId, taskId);
+        AuditContext.setOldValue(TaskResponse.from(task));
 
         BoardColumn targetColumn = boardColumnRepository.findById(request.columnId())
                 .orElseThrow(() -> new ResourceNotFoundException("Column not found: " + request.columnId()));
@@ -80,25 +89,29 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> getTasksByProject(UUID tenantId, UUID projectId) {
-        findProjectInTenant(tenantId, projectId);
+    public List<TaskResponse> getTasksByProject(UUID projectId) {
+        findProject(projectId);
         return taskRepository.findAllByProjectIdOrderByPositionAsc(projectId).stream()
                 .map(TaskResponse::from)
                 .toList();
     }
 
-    private Project findProjectInTenant(UUID tenantId, UUID projectId) {
+    private Project findProject(UUID projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
+
+        UUID tenantId = TenantContext.requireCurrentTenant();
         if (!project.getTenant().getId().equals(tenantId)) {
             throw new ResourceNotFoundException("Project not found: " + projectId);
         }
         return project;
     }
 
-    private Task findTaskInProject(UUID tenantId, UUID projectId, UUID taskId) {
+    private Task findTaskInProject(UUID projectId, UUID taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + taskId));
+
+        UUID tenantId = TenantContext.requireCurrentTenant();
         if (!task.getTenant().getId().equals(tenantId) || !task.getProject().getId().equals(projectId)) {
             throw new ResourceNotFoundException("Task not found: " + taskId);
         }
