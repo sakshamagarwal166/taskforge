@@ -9,7 +9,7 @@ Multi-tenant project management platform built with Spring Boot 3, React, and Po
 | Language      | Java 17, TypeScript                              |
 | Backend       | Spring Boot 3.5, Spring Security 6 (JWT)         |
 | Frontend      | React 18, Vite, TailwindCSS                      |
-| Persistence   | Spring Data JPA, Hibernate (multi-tenant filters) |
+| Persistence   | Spring Data JPA, Hibernate (multi-tenant filters)|
 | Database      | PostgreSQL 16                                    |
 | Migrations    | Flyway                                           |
 | Infrastructure| Docker, Redis, GitHub Actions                    |
@@ -31,11 +31,11 @@ Screenshots coming soon.
 ## Architecture
 
 ```
-                         ┌─────────────────────────────────────────────┐
-                         │              Spring Boot App                │
-                         │                                             │
+                         ┌────────────────────────────────────────────┐
+                         │              Spring Boot App               │
+                         │                                            │
   Client Request         │  ┌──────────────┐    ┌──────────────────┐  │
-  (Bearer JWT)    ────►  │  │  JWT Filter   │──►│  Tenant Resolver  │  │
+  (Bearer JWT)    ────►  │  │  JWT Filter  │──►│  Tenant Resolver  │  │
                          │  └──────────────┘    └────────┬─────────┘  │
                          │                               │            │
                          │                      ┌────────▼─────────┐  │
@@ -43,7 +43,7 @@ Screenshots coming soon.
                          │                      └────────┬─────────┘  │
                          │                               │            │
                          │  ┌──────────────┐    ┌────────▼─────────┐  │
-                         │  │ Audit Aspect  │◄──│    Services       │  │
+                         │  │ Audit Aspect │◄──│    Services       │  │
                          │  └──────┬───────┘    └────────┬─────────┘  │
                          │         │                     │            │
                          │         │            ┌────────▼─────────┐  │
@@ -53,7 +53,7 @@ Screenshots coming soon.
                                    │                     │
                                    ▼                     ▼
                              ┌───────────┐        ┌─────────────┐
-                             │ audit_logs │        │ PostgreSQL  │
+                             │ audit_logs│        │ PostgreSQL  │
                              └───────────┘        └─────────────┘
 ```
 
