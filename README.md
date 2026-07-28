@@ -35,7 +35,7 @@ Screenshots coming soon.
                          │              Spring Boot App               │
                          │                                            │
   Client Request         │  ┌──────────────┐    ┌──────────────────┐  │
-  (Bearer JWT)    ────►  │  │  JWT Filter  │──►│  Tenant Resolver  │  │
+  (Bearer JWT)    ────►  │  │  JWT Filter  │──► │  Tenant Resolver │  │
                          │  └──────────────┘    └────────┬─────────┘  │
                          │                               │            │
                          │                      ┌────────▼─────────┐  │
@@ -43,7 +43,7 @@ Screenshots coming soon.
                          │                      └────────┬─────────┘  │
                          │                               │            │
                          │  ┌──────────────┐    ┌────────▼─────────┐  │
-                         │  │ Audit Aspect │◄──│    Services       │  │
+                         │  │ Audit Aspect │◄── │   Services       │  │
                          │  └──────┬───────┘    └────────┬─────────┘  │
                          │         │                     │            │
                          │         │            ┌────────▼─────────┐  │
