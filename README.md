@@ -122,6 +122,13 @@ API docs are available at [http://localhost:8080/swagger-ui.html](http://localho
 | POST   | `/api/tasks/{id}/comments`            | OWNER-MEMBER    | Add comment                  |
 | GET    | `/api/audit`                          | OWNER, ADMIN    | View audit logs              |
 
+## Screenshots
+<img width="1440" height="900" alt="Screenshot 2026-07-28 203440" src="https://github.com/user-attachments/assets/f8224f4c-688b-4d24-8b1c-5350785eaeb8" />
+<img width="1440" height="900" alt="Screenshot 2026-07-28 203140" src="https://github.com/user-attachments/assets/dd12e22c-75e7-4db7-8f6f-b6046ec11c58" />
+<img width="1440" height="900" alt="Screenshot 2026-07-28 203343" src="https://github.com/user-attachments/assets/d5b0d49f-df66-46a7-8dbf-1658f3b2a921" />
+<img width="1440" height="900" alt="Screenshot 2026-07-28 203405" src="https://github.com/user-attachments/assets/9dcd77dc-d171-4726-a6f5-4307d9b69ec8" />
+<img width="1440" height="900" alt="Screenshot 2026-07-28 203304" src="https://github.com/user-attachments/assets/ee14c24d-ddb4-473e-acbb-cf51f1e88bae" />
+
 ## Roadmap
 
 - [x] Multi-tenant data isolation
